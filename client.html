@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Cliente Prueba</title>
+    <style>body{font-family:system-ui,Arial;margin:16px}#log{white-space:pre-wrap;border:1px solid #ddd;padding:8px;height: 300px;overflow: auto}</style>
+    
+</head>
+
+<body>  
+    <h1>Cliente</h1>
+    <div>
+        <label>URL: <input id="url" value="ws://localhost:8080" size"30"</label>
+        <button id="connect">Conectar</button>
+        <button id="disconnect" disabled>Desconectar</button>
+    </div>
+<div style=" margin-top:8px">
+    <input id="message" placeholder="Escribe un mensaje..." size="30">
+    <button id="send" disabled>Enviar</button>
+</div>
+<h3>log</h3>
+<div id="log"></div>
+
+<script>
+    let ws=null;
+    const log = (msg) => {
+        const logDiv = document.getElementById('log');
+        logDiv.textContent += msg + '\n';
+        logDiv.scrollTop = logDiv.scrollHeight;
+    };
+
+    document.getElementById('connect').onclick = () => {
+        const url = document.getElementById('url').value;
+        ws = new WebSocket(url);
+
+        ws.onopen = () => {
+            log('Conectado a ' + url);
+            document.getElementById('connect').disabled = true;
+            document.getElementById('disconnect').disabled = false;
+            document.getElementById('send').disabled = false;};
+        ws.onmessage=(e)=>{try{ const d= JSON.pasrse(e.data); log('Recibido: ' + JSON.stringify(d));}catch(err){log('Recibido: ' + e.data)}};
+        ws.omclose=()=>{log('Desconectado'); document.getElementById('connect').disabled = false; document.getElementById('disconnect').disabled = true; document.getElementById('send').disabled = true;};
+        ws.onerror=(e)=>log('Error: ' + e.message||e);
+    };
+
+    document.getElementById('disconnect').onclick = () => {
+        if (ws) ws.close();
+    };
+    document.getElementById('send').onclick=()=>{ const m=document.getElemetById('message').value; if(ws && ws.readyState==WebSocket.OPEN){ws.send(m); log('Enviado:' + m);}};
+</script>
+
+</body>
+
+</html>
