@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Cliente Prueba</title>
-    <style>body{font-family:system-ui,Arial;margin:16px}#log{white-space:pre-wrap;border:1px solid #ddd;padding:8px;height: 300px;overflow: auto}</style>
+    <style>
+    body{font-family:system-ui,Arial;margin:16px;line-height:1.5;}
+    #log{white-space:pre-wrap;border:1px solid #ddd;padding:8px;height: 300px;overflow: auto}
+    .controls { margin-bottom: 12px;}
+    </style>
     
 </head>
 
 <body>  
-    <h1>Cliente</h1>
+    <h1>Cliente WebSocket</h1>
     <div>
         <label>URL: <input id="url" value="ws://localhost:8080" size"30"</label>
         <button id="connect">Conectar</button>
@@ -19,14 +23,16 @@
     <input id="message" placeholder="Escribe un mensaje..." size="30">
     <button id="send" disabled>Enviar</button>
 </div>
-<h3>log</h3>
+<h3>log de actividad</h3>
 <div id="log"></div>
 
 <script>
     let ws=null;
+    const logDiv = document.getElementById('log');
+
+
     const log = (msg) => {
-        const logDiv = document.getElementById('log');
-        logDiv.textContent += msg + '\n';
+        logDiv.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
         logDiv.scrollTop = logDiv.scrollHeight;
     };
 
