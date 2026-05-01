@@ -54,7 +54,7 @@ class GameManager {
         if (game.jugadores.length < 2 && game.countdown) {
             clearTimeout(game.countdown);//detiene el coundown
             game.countdown = null;//Limpia la referencia
-            game.estado = 'espera';//vuelve añ estado de espera
+            game.estado = 'espera';//vuelve al estado de espera
         }
 
         //Si la partida queda vacia se elimina

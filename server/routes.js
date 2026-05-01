@@ -8,12 +8,13 @@ const router= express.Router();//se inicializa
 const backendToken=''; //token de backend para autenticacion con API externa
 
 const loginValidation=[
-    body('name').isString().trim.escape().notEmpty().withMessage('El nombre es requerido y debe ser una cadena de texto'),
+    body('nickname').isString().trim.escape().notEmpty().withMessage('El nickname es requerido y debe ser una cadena de texto'),
     body('password').isString().trim.escape().notEmpty().withMessage('La contraseña es requerida y debe ser una cadena de texto'),
 ]
 
 const registerValidation=[
-    body('name').isString().trim.escape().notEmpty().withMessage('El nombre es requerido y debe ser una cadena de texto'),
+    body('nickname').isString().trim.escape().notEmpty().withMessage('El nickname es requerido y debe ser una cadena de texto'),
+    body('nombre').isString().trim.escape().notEmpty().withMessage('El nombre es requerido y debe ser una cadena de texto'),
     body('password').isString().trim.escape().notEmpty().withMessage('La contraseña es requerida y debe ser una cadena de texto'),
     body('email').isEmail().normalizeEmail().withMessage('El email es requerido y debe ser válido'),
 ]
@@ -27,17 +28,17 @@ router.all('/auth/login', loginValidation, (req, res,next) =>{
     next();
     }, async (req, res) =>{
         console.log('Login request body:', req.body);
-        const { name, password } = req.body;
+        const { nickname, password } = req.body;
         console.log('Request body:', req.body);
-        console.log('Login attempt:',name);
+        console.log('Login attempt:',nickname);
         try{//verifica si el usuario existe 
-            if(!name || !password){
+            if(!nickname || !password){
                 return res.status(400).json({ error: 'Nombre y contraseña son requeridos' });
             }
 
             //compara la contraseña enviada con la hasheada en la DB
             //Prioridad a la seguridad, no comparar en texto plano
-            let payload = await loginToExternalApi(name, password, backendToken);
+            let payload = await loginToExternalApi(nickname, password, backendToken);
 
             //firma el token
             jwt.sign(
@@ -45,8 +46,8 @@ router.all('/auth/login', loginValidation, (req, res,next) =>{
                 process.env.JWT_SECRET, { expiresIn: '1h' },
                  (err, token) =>{
                     if(err) throw err;
-                    userManager.loginUser(token,{id:payload.id,nickname: payload.nickname, moneda:payload.moneda, tankes: payload.tankes, token: token});
-                    res.status(200).json({ token: token, user:{ id: payload.id, nickname: payload.nickname, moneda:payload.moneda, tankes: payload.tankes }});//esto lo guarda el cliente en localStorage o similar para usarlo en futuras peticiones y en la conexion de sockets
+                    userManager.loginUser(token,{id:payload.id,nicknickname: payload.nicknickname, moneda:payload.moneda, tankes: payload.tankes, token: token});
+                    res.status(200).json({ token: token, user:{ id: payload.id, nicknickname: payload.nicknickname, moneda:payload.moneda, tankes: payload.tankes }});//esto lo guarda el cliente en localStorage o similar para usarlo en futuras peticiones y en la conexion de sockets
                 }
             );
         }catch(error){
@@ -84,16 +85,16 @@ router.all('/auth/register', registerValidation, (req, res, next) =>{
     async (req, res)=>{
     console.log('Register request body:', req.body);
     try{//verifica los datos de usuario y registra en la API externa
-        const { name, password, email } = req.body;
+        const { nickname, password, email } = req.body;
         console.log('Request body:', req.body);
-        console.log('Register attempt:',name);
-        if(!name || !password || !email){
+        console.log('Register attempt:',nickname);
+        if(!nickname || !password || !email){
             return res.status(400).json({msg: 'error en las credenciales' });
         }
        //compara la contraseña enviada con la hasheada en la DB
        //Prioridad a la seguridad, no comparar en texto plano
        backendToken = await registerToExternalApi(req.body);
-       res.status(201).json({msg: 'Usuario registrado con éxito', user:{ id: payload.id, nickname: payload.nickname, moneda:payload.moneda, tankes: payload.tankes }}); 
+       res.status(201).json({msg: 'Usuario registrado con éxito', user:{ id: payload.id, nicknickname: payload.nicknickname, moneda:payload.moneda, tankes: payload.tankes }}); 
     } 
     catch(err){
         console.error(err.message);
